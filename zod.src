@@ -281,7 +281,9 @@ ObjectValidator.parse = function(table)
         key = value.key
         validator = value.value
         if table.hasIndex(key) then result = validator.parse(table[key])
-        if not table.hasIndex(key) and validator._optional == false then return {"valid": false, "error": "Value is missing"}
+        if not table.hasIndex(key) and validator._nullable == true then result = {"valid": true, "value": null}
+        if not table.hasIndex(key) and validator._optional == false and validator._nullable == false then return {"valid": false, "error": "Value is missing"}
+        if not table.hasIndex(key) and validator._optional == true then result = {"valid": true, "value": null}
         if result.valid == false then return result
         resultTable[key] = result.value
     end for

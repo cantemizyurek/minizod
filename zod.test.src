@@ -197,4 +197,27 @@ test "zod", function()
             expect(omitted.parse({"name": "John", "age": 30}).value).toBe({"name": "John"})
         end function
     end function
+
+    test "optional", function()
+        person = z.object({
+            "name": z.string(),
+            "age": z.optional(z.number())
+        })
+
+        expect(person.parse({"name": "John"}).valid).toBe(true)
+        expect(person.parse({"name": "John", "age": 30}).valid).toBe(true)
+        expect(person.parse({"name": "John", "age": "30"}).valid).toBe(true)
+    end function
+
+    test "nullable", function()
+        person = z.object({
+            "name": z.string(),
+            "age": z.nullable(z.number())
+        })
+
+        expect(person.parse({"name": "John"}).valid).toBe(true)
+        expect(person.parse({"name": "John", "age": 30}).valid).toBe(true)
+        expect(person.parse({"name": "John", "age": "30"}).valid).toBe(false)
+        expect(person.parse({"name": "John", "age": null}).valid).toBe(true)
+    end function
 end function
