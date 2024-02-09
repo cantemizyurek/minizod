@@ -7,9 +7,7 @@ Validator._coerce = false
 Validator.parse = function(value)
     if self._coerce == true then 
         value = self.handleCoerce(value)
-        if value.hasIndex("valid") and value.valid == false then
-            return value
-        end if
+        if typeof(value) == "table" and value.valid == false then return value
     end if
     if value == null and self._nullable == false then return {"valid": false, "error": "Value is null"}
     if value == null and self._nullable == true then return {"valid": true, "value": null}
@@ -281,12 +279,10 @@ ObjectValidator.parse = function(table)
     resultTable = {}
     for value in self.schema
         key = value.key
-        validator = value.validator
+        validator = value.value
         if table.hasIndex(key) then result = validator.parse(table[key])
-        if not table.hasIndex(key) then result = validator._optional
-        if result.valid == false then
-            return result
-        end if
+        if not table.hasIndex(key) and validator._optional == false then return {"valid": false, "error": "Value is missing"}
+        if result.valid == false then return result
         resultTable[key] = result.value
     end for
     return {"valid": true, "value": resultTable}
@@ -303,14 +299,14 @@ end function
 ObjectValidator.pick = function(keys)
     newSchema = {}
     for v in self.schema
-        if keys.hasIndex(v.key) then newSchema.push(v.value)
+        if keys.hasIndex(v.key) and keys[v.key] == true then newSchema[v.key] = v.value
     end for
     return ObjectValidator.New(newSchema)
 end function
 ObjectValidator.omit = function(keys)
     newSchema = {}
     for v in self.schema
-        if not keys.hasIndex(v.key) then newSchema.push(v.value)
+        if not keys.hasIndex(v.key) then newSchema[v.key] = v.value
     end for
     return ObjectValidator.New(newSchema)
 end function
