@@ -5,13 +5,15 @@ __scope__ = function()
     Validator._optional = false
     Validator._nullable = false
     Validator._coerce = false
+    Validator._default = null
     Validator.parse = function(value)
-        if self._coerce == true then 
-            value = self.handleCoerce(value)
-            if typeof(value) == "table" and value.valid == false then return value
-        end if
+        if value == null and self._default != null then return {"valid": true, "value": self._default}
         if value == null and self._nullable == false then return {"valid": false, "error": "Value is null"}
         if value == null and self._nullable == true then return {"valid": true, "value": null}
+        if self._coerce == true then 
+            value = self.handleCoerce(value)
+            if typeof(value) == "map" and value.valid == false then return value
+        end if
         for validater in self.validators
             result = validater(value)
             if result != true and self._optional == false then
@@ -37,6 +39,10 @@ __scope__ = function()
     end function
     Validator.coerce = function()
         self._coerce = true
+        return self
+    end function
+    Validator.default = function(value)
+        self._default = value
         return self
     end function
     
