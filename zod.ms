@@ -41,72 +41,88 @@ __scope__ = function()
     end function
     
     StringValidator = new Validator
-    StringValidator.max = function(max)
+    StringValidator.max = function(max, options)
+        if options == null then options = {}
         checkIfStringMax = function(value)
             if value.len > max then
+                if options.hasIndex("message") then return options.message
                 return "String is too long"
             end if
             return true
         end function
         return self.addValidator(@checkIfStringMax)
     end function
-    StringValidator.min = function(min)
+    StringValidator.min = function(min, options)
+        if options == null then options = {}
         checkIfStringMin = function(value)
             if value.len < min then
+                if options.hasIndex("message") then return options.message
                 return "String is too short"
             end if
             return true
         end function
         return self.addValidator(@checkIfStringMin)
     end function
-    StringValidator.length = function(length)
+    StringValidator.length = function(length, options)
+        if options == null then options = {}
         checkIfStringLength = function(value)
             if value.len != length then
+                if options.hasIndex("message") then return options.message
                 return "String is not the correct length"
             end if
             return true
         end function
         return self.addValidator(@checkIfStringLength)
     end function
-    StringValidator.regex = function(regex)
+    StringValidator.regex = function(regex, options)
+        if options == null then options = {}
         checkIfStringRegex = function(value)
             if value.is_match(regex) == false then
+                if options.hasIndex("message") then return options.message
                 return "String does not match regex"
             end if
             return true
         end function
         return self.addValidator(@checkIfStringRegex)
     end function
-    StringValidator.includes = function(includes)
+    StringValidator.includes = function(includes, options)
+        if options == null then options = {}
         checkIfStringIncludes = function(value)
             if value.indexOf(includes) == null then
+                if options.hasIndex("message") then return options.message
                 return "String does not include value"
             end if
             return true
         end function
         return self.addValidator(@checkIfStringIncludes)
     end function
-    StringValidator.startsWith = function(startsWith)
+    StringValidator.startsWith = function(startsWith, options)
+        if options == null then options = {}
         checkIfStringStartsWith = function(value)
             if value.indexOf(startsWith) != 0 then
+                if options.hasIndex("message") then return options.message
                 return "String does not start with value"
             end if
             return true
         end function
         return self.addValidator(@checkIfStringStartsWith)
     end function
-    StringValidator.endsWith = function(endsWith)
+    StringValidator.endsWith = function(endsWith, options)
+        if options == null then options = {}
         checkIfStringEndsWith = function(value)
             if value.indexOf(endsWith) != value.len - endsWith.len then
+                if options.hasIndex("message") then return options.message
                 return "String does not end with value"
             end if
             return true
         end function
         return self.addValidator(@checkIfStringEndsWith)
     end function
-    StringValidator.ip = function()
+    StringValidator.ip = function(options)
+        if options == null then options = {}
         checkIfStringIp = function(value)
             if is_valid_ip(value) == false then
+                if options.hasIndex("message") then return options.message
                 return "String is not a valid IP address"
             end if
             return true
@@ -131,90 +147,110 @@ __scope__ = function()
     end function
     
     NumberValidator = new Validator
-    NumberValidator.gt = function(gt)
+    NumberValidator.gt = function(gt, options)
+        if options == null then options = {}
         checkIfNumberGt = function(value)
             if value <= gt then
+                if options.hasIndex("message") then return options.message
                 return "Number is not greater than " + gt
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberGt)
     end function
-    NumberValidator.gte = function(gte)
+    NumberValidator.gte = function(gte, options)
+        if options == null then options = {}
         checkIfNumberGte = function(value)
             if value < gte then
+                if options.hasIndex("message") then return options.message
                 return "Number is not greater than or equal to " + gte
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberGte)
     end function
-    NumberValidator.lt = function(lt)
+    NumberValidator.lt = function(lt, options)
+        if options == null then options = {}
         checkIfNumberLt = function(value)
             if value >= lt then
+                if options.hasIndex("message") then return options.message
                 return "Number is not less than " + lt
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberLt)
     end function
-    NumberValidator.lte = function(lte)
+    NumberValidator.lte = function(lte, options)
+        if options == null then options = {}
         checkIfNumberLte = function(value)
             if value > lte then
+                if options.hasIndex("message") then return options.message
                 return "Number is not less than or equal to " + lte
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberLte)
     end function
-    NumberValidator.integer = function()
+    NumberValidator.integer = function(options)
+        if options == null then options = {}
         checkIfNumberInteger = function(value)
             if value % 1 != 0 then
+                if options.hasIndex("message") then return options.message
                 return "Number is not an integer"
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberInteger)
     end function
-    NumberValidator.positive = function()
+    NumberValidator.positive = function(options)
+        if options == null then options = {}
         checkIfNumberPositive = function(value)
             if value <= 0 then
+                if options.hasIndex("message") then return options.message
                 return "Number is not positive"
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberPositive)
     end function
-    NumberValidator.nonnegative = function()
+    NumberValidator.nonnegative = function(options)
+        if options == null then options = {}
         checkIfNumberNonnegative = function(value)
             if value < 0 then
+                if options.hasIndex("message") then return options.message
                 return "Number is negative"
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberNonnegative)
     end function
-    NumberValidator.negative = function()
+    NumberValidator.negative = function(options)
+        if options == null then options = {}
         checkIfNumberNegative = function(value)
             if value >= 0 then
+                if options.hasIndex("message") then return options.message
                 return "Number is not negative"
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberNegative)
     end function
-    NumberValidator.nonpositive = function()
+    NumberValidator.nonpositive = function(options)
+        if options == null then options = {}
         checkIfNumberNonpositive = function(value)
             if value > 0 then
+                if options.hasIndex("message") then return options.message
                 return "Number is positive"
             end if
             return true
         end function
         return self.addValidator(@checkIfNumberNonpositive)
     end function
-    NumberValidator.multipleOf = function(multipleOf)
+    NumberValidator.multipleOf = function(multipleOf, options)
+        if options == null then options = {}
         checkIfNumberMultipleOf = function(value)
             if value % multipleOf != 0 then
+                if options.hasIndex("message") then return options.message
                 return "Number is not a multiple of " + multipleOf
             end if
             return true
@@ -239,18 +275,22 @@ __scope__ = function()
     end function
     
     BooleanValidator = new Validator
-    BooleanValidator.truthy = function()
+    BooleanValidator.truthy = function(options)
+        if options == null then options = {}
         checkIfBooleanTruthy = function(value)
             if value != true then
+                if options.hasIndex("message") then return options.message
                 return "Value is not truthy"
             end if
             return true
         end function
         return self.addValidator(@checkIfBooleanTruthy)
     end function
-    BooleanValidator.falsy = function()
+    BooleanValidator.falsy = function(options)
+        if options == null then options = {}
         checkIfBooleanFalsy = function(value)
             if value != false then
+                if options.hasIndex("message") then return options.message
                 return "Value is not falsy"
             end if
             return true

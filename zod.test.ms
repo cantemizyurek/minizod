@@ -1,5 +1,5 @@
-import_code("./libs/testing/mitest.src")
-import_code("./zod.src")
+import_code("./libs/testing/mitest.ms")
+import_code("./zod.ms")
 
 test "zod", function()
     test "string", function()

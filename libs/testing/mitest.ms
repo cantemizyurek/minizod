@@ -1,4 +1,4 @@
-import_code("../functional.src")
+import_code("../functional.ms")
 
 testStack = []
 
