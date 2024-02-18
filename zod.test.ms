@@ -1,6 +1,8 @@
 import_code("./libs/testing/mitest.ms")
 import_code("./zod.ms")
 
+vi.global()
+
 test "zod", function()
     test "string", function()
         string = "hello"
@@ -219,5 +221,48 @@ test "zod", function()
         expect(person.parse({"name": "John", "age": 30}).valid).toBe(true)
         expect(person.parse({"name": "John", "age": "30"}).valid).toBe(false)
         expect(person.parse({"name": "John", "age": null}).valid).toBe(true)
+    end function
+
+    test "default", function()
+        person = z.object({
+            "name": z.string(),
+            "age": z.default(z.number(), 30)
+        })
+
+        expect(person.parse({"name": "John"}).valid).toBe(true)
+        expect(person.parse({"name": "John", "age": 30}).valid).toBe(true)
+        expect(person.parse({"name": "John", "age": "30"}).valid).toBe(false)
+    end function
+
+    test "any", function()
+        expect(z.any().parse("hello").valid).toBe(true)
+        expect(z.any().parse(123).valid).toBe(true)
+        expect(z.any().parse(true).valid).toBe(true)
+        expect(z.any().parse({}).valid).toBe(true)
+
+        expect(z.any().parse(123).value).toBe(123)
+        expect(z.any().parse("hello").value).toBe("hello")
+
+        test "function", function()
+            t = function()
+            end function
+
+            expect(@z.any().parse(@t).value).toBe(t)
+        end function
+    end function
+
+    test "array", function()
+        schema = z.array(z.string())
+
+        expect(schema.parse(["hello", "world"]).valid).toBe(true)
+        expect(schema.parse(["hello", 123]).valid).toBe(false)
+    end function
+
+    test "enum", function()
+        schema = z.enum(["hello", "world"])
+
+        expect(schema.parse("hello").valid).toBe(true)
+        expect(schema.parse("world").valid).toBe(true)
+        expect(schema.parse("hi").valid).toBe(false)
     end function
 end function

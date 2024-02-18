@@ -7,23 +7,23 @@ __scope__ = function()
     Validator._coerce = false
     Validator._default = null
     Validator.parse = function(value)
-        if value == null and self._default != null then return {"valid": true, "value": self._default}
-        if value == null and self._nullable == false then return {"valid": false, "error": "Value is null"}
-        if value == null and self._nullable == true then return {"valid": true, "value": null}
+        if @value == null and self._default != null then return {"valid": true, "value": @self._default}
+        if @value == null and self._nullable == false then return {"valid": false, "error": "Value is null"}
+        if @value == null and self._nullable == true then return {"valid": true, "value": null}
         if self._coerce == true then 
-            value = self.handleCoerce(value)
-            if typeof(value) == "map" and value.valid == false then return value
+            value = @self.handleCoerce(@value)
+            if value isa map and value.valid == false then return value
         end if
         for validater in self.validators
-            result = validater(value)
+            result = validater(@value)
             if result != true and self._optional == false then
                 return {"valid": false, "error": result}
             end if
         end for
-        return {"valid": true, "value": value}
+        return {"valid": true, "value": @value}
     end function
     Validator.handleCoerce = function(value)
-        return value
+        return @value
     end function
     Validator.addValidator = function(validater)
         self.validators.push(@validater)
@@ -140,9 +140,11 @@ __scope__ = function()
         if typeof(newValue) != "string" then return {"valid": false, "error": "Value is not a string"}
         return newValue
     end function
-    StringValidator.New = function()
+    StringValidator.New = function(options)
+        if options == null then options = {}
         checkIfString = function(value)
             if typeof(value) != "string" then
+                if options.hasIndex("message") then return options.message
                 return "Value is not a string"
             end if
             return true
@@ -268,9 +270,11 @@ __scope__ = function()
         if typeof(newValue) != "number" then return {"valid": false, "error": "Value is not a number"}
         return newValue
     end function
-    NumberValidator.New = function()
+    NumberValidator.New = function(options)
+        if options == null then options = {}
         checkIfNumber = function(value)
             if typeof(value) != "number" then
+                if options.hasIndex("message") then return options.message
                 return "Value is not a number"
             end if
             return true
@@ -308,9 +312,11 @@ __scope__ = function()
         if value == "false" or value == false then return false
         return {"valid": false, "error": "Value is not a boolean"}
     end function
-    BooleanValidator.New = function()
+    BooleanValidator.New = function(options)
+        if options == null then options = {}
         checkIfBoolean = function(value)
             if value != true and value != false then
+                if options.hasIndex("message") then return options.message
                 return "Value is not a boolean"
             end if
             return true
@@ -318,6 +324,31 @@ __scope__ = function()
         result = new BooleanValidator
         result.validators = []
         return result.addValidator(@checkIfBoolean)
+    end function
+
+    AnyValidator = new Validator
+    AnyValidator.New = function()
+        result = new AnyValidator
+        result.validators = []
+        return result
+    end function
+
+    ArrayValidator = new Validator
+    ArrayValidator.New = function(validator, options)
+        result = new ArrayValidator
+        result.validators = []
+        checkIfArray = function(value)
+            if not value isa list then 
+                if options.hasIndex("message") then return options.message
+                return "Value is not an array"
+            end if
+            for item in value
+                result = validator.parse(item)
+                if result.valid == false then return result.error
+            end for
+            return true
+        end function
+        return result.addValidator(@checkIfArray)
     end function
     
     ObjectValidator = new Validator
@@ -327,12 +358,14 @@ __scope__ = function()
         for value in self.schema
             key = value.key
             validator = value.value
-            if table.hasIndex(key) then result = validator.parse(table[key])
+            result = null
+            if table.hasIndex(key) then result = validator.parse(@table[key])
             if not table.hasIndex(key) and validator._nullable == true then result = {"valid": true, "value": null}
-            if not table.hasIndex(key) and validator._optional == false and validator._nullable == false then return {"valid": false, "error": "Value is missing"}
+            if not table.hasIndex(key) and validator._default != null then result = {"valid": true, "value": @validator._default}
+            if not table.hasIndex(key) and validator._optional == false and result == null then return {"valid": false, "error": "Value is missing"}
             if not table.hasIndex(key) and validator._optional == true then result = {"valid": true, "value": null}
             if result.valid == false then return result
-            resultTable[key] = result.value
+            resultTable[key] = @result.value
         end for
         return {"valid": true, "value": resultTable}
     end function
@@ -364,25 +397,48 @@ __scope__ = function()
         result.schema = schema
         return result
     end function
+
+    EnumValidator = new Validator
+    EnumValidator.New = function(enumeration)
+        checkIfEnum = function(value)
+            if enumeration.indexOf(value) == null then return "Value is not in the enumeration"
+            return true
+        end function
+        result = new EnumValidator
+        result.validators = []
+        return result.addValidator(@checkIfEnum)
+    end function
     
     globals.z = {}
-    z.string = function()
-        return new StringValidator.New()
+    z.string = function(options)
+        return new StringValidator.New(options)
     end function
-    z.number = function()
-        return new NumberValidator.New()
+    z.number = function(options)
+        return new NumberValidator.New(options)
     end function
-    z.boolean = function()
-        return new BooleanValidator.New()
+    z.boolean = function(options)
+        return new BooleanValidator.New(options)
     end function
     z.object = function(schema)
         return new ObjectValidator.New(schema)
+    end function
+    z.any = function()
+        return new AnyValidator.New()
+    end function
+    z.array = function(validator, options)
+        return new ArrayValidator.New(validator, options)
+    end function
+    z.enum = function(enumeration)
+        return new EnumValidator.New(enumeration)
     end function
     z.optional = function(validator)
         return validator.optional()
     end function
     z.nullable = function(validator)
         return validator.nullable()
+    end function
+    z.default = function(validator, value)
+        return validator.default(value)
     end function
     z.coerce = function(validator)
         return validator.coerce()
